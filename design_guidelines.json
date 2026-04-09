@@ -1,95 +1,121 @@
 {
-  "project_name": "Nyaya Setu",
-  "theme": "Light",
-  "archetype": "Modified Archetype 1 (Trust & Grounded) + High Accessibility (Vibrant)",
-  "colors": {
-    "background": "#FFFFFF",
-    "surface": "#F8F9FA",
-    "primary": "#FF6B00",
-    "secondary": "#1A237E",
-    "emergency": "#D32F2F",
-    "text_primary": "#1A237E",
-    "text_secondary": "#283593",
-    "border": "#C5CAE9",
-    "contrast_rules": "CRITICAL: White text on Saffron (#FF6B00) fails WCAG AA contrast. You MUST use Deep Navy (#1A237E) or Black text/icons on Saffron backgrounds. Saffron text can be used on Navy or White backgrounds."
-  },
+  "theme": "dark",
+  "archetype": "Archetype 4 (Swiss & High-Contrast) infused with Archetype 7 (Electric & Neon) for dark mode",
   "typography": {
-    "heading_font": "Work Sans",
-    "body_font": "IBM Plex Sans",
-    "minimum_sizes": {
-      "body": "18px (text-lg)",
-      "heading": "22px (text-2xl)"
+    "fonts": [
+      "@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Work+Sans:wght@600;700&display=swap');"
+    ],
+    "headings": {
+      "family": "'Work Sans', sans-serif",
+      "weights": ["600", "700"],
+      "sizes": {
+        "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-none",
+        "h2": "text-2xl sm:text-3xl lg:text-4xl tracking-tight leading-none",
+        "h3": "text-xl sm:text-2xl font-bold tracking-tight",
+        "h4": "text-lg sm:text-xl font-bold tracking-tight"
+      }
     },
-    "hierarchy": {
-      "h1": "text-3xl sm:text-4xl font-black tracking-tight text-[#1A237E]",
-      "h2": "text-2xl sm:text-3xl font-bold tracking-tight text-[#1A237E]",
-      "h3": "text-xl sm:text-2xl font-bold text-[#1A237E]",
-      "body": "text-lg font-medium leading-relaxed text-[#1A237E]",
-      "labels": "text-lg font-bold tracking-wide uppercase text-[#283593]"
+    "body": {
+      "family": "'IBM Plex Sans', sans-serif",
+      "weights": ["400", "500", "600"],
+      "sizes": {
+        "base": "text-lg leading-relaxed",
+        "small": "text-base leading-relaxed",
+        "large": "text-xl leading-relaxed"
+      }
     }
   },
-  "spacing_and_layout": {
-    "philosophy": "High-Contrast, Single-Column Mobile-First. Everything must be highly legible on 320px screens. Generous internal padding.",
-    "touch_targets": "Minimum 48x48px. Primary actions 64x64px. Voice button 80x80px.",
-    "containers": "Cardless layout or solid borders. Use solid 2px borders (border-[#1A237E]/20) with p-6 or p-8 padding to separate sections visually. Avoid subtle box-shadows as they fail on low-end screens.",
-    "grid_system": "grid-cols-1 default for mobile. Use grid-cols-2 only for large tap target grids (like language selection)."
-  },
-  "components": {
-    "voice_interface": {
-      "type": "Floating Action Button / Hero Element",
-      "classes": "w-[80px] h-[80px] rounded-full bg-[#FF6B00] text-[#1A237E] flex items-center justify-center shadow-[0_8px_16px_rgba(255,107,0,0.3)]",
-      "animation": "Pulsing waveform effect (scale 1 to 1.1) when active using Framer Motion."
+  "colors": {
+    "primary": {
+      "saffron": "#FF6B00",
+      "navy": "#1A237E"
     },
-    "panic_button": {
-      "type": "Prominent Fixed Element",
-      "classes": "bg-[#D32F2F] text-white font-black text-xl px-6 py-4 rounded-xl shadow-lg border-2 border-[#D32F2F] uppercase tracking-wider"
+    "accents": {
+      "neon_saffron": "#FF8A33",
+      "neon_green": "#00E676",
+      "neon_purple": "#D500F9",
+      "neon_pink": "#FF4081"
     },
-    "rights_meter": {
-      "type": "Visual Gauge",
-      "classes": "h-6 w-full bg-[#E8EAF6] rounded-full overflow-hidden border-2 border-[#1A237E]/10",
-      "fill_classes": "h-full bg-[#FF6B00] transition-all duration-500 ease-out"
+    "background": {
+      "app": "#0A0D29",
+      "card": "#111742",
+      "glass": "rgba(26, 35, 126, 0.4)",
+      "overlay": "rgba(10, 13, 41, 0.8)"
     },
-    "jargon_buster": {
-      "type": "Interactive Text",
-      "classes": "underline decoration-[#FF6B00] decoration-[3px] underline-offset-4 cursor-pointer font-bold text-[#1A237E] hover:bg-[#FF6B00]/10"
-    },
-    "language_selector": {
-      "type": "Large Tap Grid",
-      "classes": "grid grid-cols-2 gap-4"
-    },
-    "timeline_visualizer": {
-      "type": "Horizontal Nodes",
-      "classes": "flex items-center space-x-4 overflow-x-auto pb-4 snap-x"
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#A8B2D1",
+      "muted": "#7C88B0"
     }
   },
-  "icons_and_assets": {
-    "library": "lucide-react",
-    "sizing": "w-8 h-8 minimum for standard icons, w-10 h-10 or w-12 h-12 for primary pictograms",
-    "stroke_weight": "3px (Bold and highly visible for low literacy)"
-  },
-  "image_urls": {
-    "hero_community": {
-      "url": "https://images.unsplash.com/photo-1774437563786-d40a1087f31e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDN8MHwxfHNlYXJjaHwxfHxpbmRpYW4lMjBjb21tdW5pdHklMjBnYXRoZXJpbmd8ZW58MHx8fHwxNzc1NzQ5NzQ4fDA&ixlib=rb-4.1.0&q=85",
-      "description": "Indian community gathering. Use in the 'Community Q&A', 'NGO Finder' header, or landing screen to establish trust."
-    },
-    "citizen_support": {
-      "url": "https://images.unsplash.com/photo-1635907423563-bb17f3d05c70?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwyfHxydXJhbCUyMGluZGlhbiUyMHNtaWxpbmd8ZW58MHx8fHwxNzc1NzQ5NzQ4fDA&ixlib=rb-4.1.0&q=85",
-      "description": "Rural citizen. Use for the user persona / profile placeholder or 'Know Your Rights' educational sections."
+  "layout_and_spacing": {
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "touch_targets": "min-h-[48px] min-w-[48px]",
+    "grid_system": "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8",
+    "padding": {
+      "section": "py-16 md:py-24",
+      "card": "p-6 sm:p-8"
     }
   },
-  "accessibility_and_motion": {
-    "motion": "Minimal and purposeful. The only continuous motion should be the active voice waveform.",
-    "testing": "All interactive elements MUST have data-testid attributes (e.g., data-testid='voice-record-btn').",
-    "contrast": "Ensure pure black or deep navy text over saffron elements."
+  "components_and_surfaces": {
+    "buttons": {
+      "primary": "min-h-[48px] px-6 rounded-xl font-semibold tracking-wide transition-all duration-200 bg-gradient-to-r from-[#FF6B00] to-[#FF8A33] text-white shadow-[0_0_15px_rgba(255,107,0,0.3)] hover:shadow-[0_0_25px_rgba(255,107,0,0.6)] hover:-translate-y-1 active:translate-y-0 text-lg flex items-center justify-center",
+      "emergency": "min-h-[48px] px-6 rounded-xl font-bold tracking-wide transition-all duration-200 bg-gradient-to-r from-[#FF4081] to-[#D500F9] text-white shadow-[0_0_20px_rgba(255,64,129,0.5)] hover:shadow-[0_0_30px_rgba(255,64,129,0.8)] hover:-translate-y-1 active:translate-y-0 text-lg flex items-center justify-center animate-pulse"
+    },
+    "cards": "bg-[#111742] border border-white/10 rounded-2xl p-6 sm:p-8 hover:border-[#D500F9]/50 hover:shadow-[0_0_30px_rgba(213,0,249,0.15)] transition-all duration-300 relative overflow-hidden group",
+    "glassmorphism": "backdrop-blur-xl bg-[#1A237E]/40 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]",
+    "inputs": "min-h-[48px] bg-[#0A0D29] border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-[#FF6B00] focus:ring-1 focus:ring-[#FF6B00] transition-all text-lg w-full"
+  },
+  "animations": {
+    "page_transition": "Framer Motion: initial={{ opacity: 0, y: 10 }}, animate={{ opacity: 1, y: 0 }}, transition={{ duration: 0.4 }}",
+    "hover_effects": "Cards slightly lift (-translate-y-1) and their borders glow with neon purple or green based on category.",
+    "voice_feedback": "Framer Motion loops: scale and opacity pulsing of concentric circles around the microphone icon to represent listening/processing.",
+    "loading_state": "Animated scales of justice using CSS keyframes (rocking -5deg to 5deg, slowing down to 0deg balance).",
+    "card_flip": "Framer Motion: rotateY from 0 to 180 on click for interactive rights display cards."
+  },
+  "accessibility_requirements": {
+    "minimum_text_size": "18px (text-lg in Tailwind) for all readable content to support semi-literate users.",
+    "touch_targets": "Strict 48x48px minimum for ALL interactive elements (buttons, links, inputs).",
+    "contrast": "Ensure text over vibrant gradients uses text-shadow or a darker underlay to maintain WCAG AA contrast.",
+    "voice_first": "Keep workflows linear ('one-breath'). Provide visual feedback (captions) synchronized with voice output.",
+    "data_testid": "Required on all interactive elements (e.g., data-testid='voice-query-button')."
+  },
+  "media": {
+    "hero_background": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/380a6a0a-286a-4c76-af77-426c9b8f98f0/images/5ae71b180ddecf7034e18257bed30fc4a4be27b0e76597e10b63da58bcd86ffb.png",
+      "description": "Abstract glowing neon sound waves blending into scales of justice"
+    },
+    "panic_button_visual": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/380a6a0a-286a-4c76-af77-426c9b8f98f0/images/1ada5bd1d2719269dd77fb6f8e0c9ffcc9f7f0c5aa928f35a478b520ac489d35.png",
+      "description": "3D glowing neon pink emergency panic button for visual reference"
+    },
+    "voice_wave": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/380a6a0a-286a-4c76-af77-426c9b8f98f0/images/1b51d1726c98ddf09532aa18e3d9538445ebeaf2c2f138b8c9052d98b4084ebc.png",
+      "description": "3D glowing sound wave equalizer in neon saffron and green"
+    },
+    "rural_citizen_1": {
+      "url": "https://images.unsplash.com/photo-1595956481935-a9e254951d49?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwzfHxydXJhbCUyMGluZGlhbiUyMGNpdGl6ZW4lMjB0ZWNobm9sb2d5JTIwc21pbGluZ3xlbnwwfHx8fDE3NzU3NTE2MTl8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Rural Indian citizen smiling"
+    },
+    "rural_citizen_2": {
+      "url": "https://images.unsplash.com/photo-1560885673-4e2f056f6e2a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwxfHxydXJhbCUyMGluZGlhbiUyMGNpdGl6ZW4lMjB0ZWNobm9sb2d5JTIwc21pbGluZ3xlbnwwfHx8fDE3NzU3NTE2MTl8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Rural Indian citizen with technology"
+    },
+    "justice_scales": {
+      "url": "https://images.unsplash.com/photo-1768839722927-df0ef3188f6d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzR8MHwxfHNlYXJjaHwzfHxhYnN0cmFjdCUyMHNjYWxlcyUyMG9mJTIwanVzdGljZSUyMG1vZGVybnxlbnwwfHx8fDE3NzU3NTE2MTl8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Statue of justice with scales on dark background"
+    }
   },
   "instructions_to_main_agent": [
-    "Strictly adhere to the 18px minimum body size (text-lg) and 22px minimum heading size (text-2xl) across the app.",
-    "Implement the voice recording button as a massive 80x80px element with pulsing animation to indicate listening.",
-    "Ensure 'Saffron' buttons have 'Deep Navy' text. DO NOT use white text on Saffron, it fails accessibility contrast.",
-    "Keep standard padding large: use p-6 or p-8 inside cards/sections to prevent mis-taps on small screens.",
-    "Do not use subtle gray text. The lightest text allowed is text-[#1A237E]/80.",
-    "Use Lucide icons, but scale them up (w-8 h-8 minimum) with a thick 3px stroke to serve as clear pictograms for low-literacy users.",
-    "Build the Jargon Buster using a Popover or Dialog component triggered by tapping thickly underlined words.",
-    "Avoid decorative CSS backgrounds that increase page weight. Stick to solid colors (White, Saffron, Deep Navy) for 2G network optimization."
+    "Implement the UI primarily using the Dark Mode theme, utilizing the deep Navy (#0A0D29) app background and lighter Navy (#111742) for cards to ensure high contrast.",
+    "Apply Saffron (#FF6B00) as the primary brand/action color. Use the Neon accents (Green for success/rights, Purple for legal categories, Pink for emergency) dynamically as gradients or glowing shadows on cards and text.",
+    "CRITICAL ACCESSIBILITY: Set global base font size to 18px (`text-lg`). Make sure no interactive element (button, input, toggle) is smaller than 48x48px.",
+    "Use 'Work Sans' for all headings to provide an authoritative yet approachable feel, and 'IBM Plex Sans' for body text for maximum legibility.",
+    "Build the Voice-First interface with the provided `voice_wave` image as a background or use Framer Motion to create pulsing concentric circles when the microphone is active.",
+    "Implement the Emergency Panic Button as a fixed, highly visible Glassmorphism element, using a pulsating Neon Pink gradient and heavy drop shadow.",
+    "Create interactive rights cards that flip (using Framer Motion `rotateY`) on click to reveal details in simple language.",
+    "For the loading state, build a custom component that uses CSS to animate the scales of justice rocking back and forth until balanced.",
+    "Use Shadcn UI for structured components (OTP forms, Dialogs), but strip the default 'Vercel-look'. Heavily customize them to match the dark neon civic tech aesthetic (larger text, thicker borders, custom focus rings).",
+    "All interactive elements MUST include a `data-testid` attribute (kebab-case, role-based)."
   ]
 }
