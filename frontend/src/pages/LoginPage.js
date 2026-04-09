@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Phone, ArrowRight, Shield, Check, AlertCircle, Info } from 'lucide-react';
+import { Mail, ArrowRight, Shield, Check, AlertCircle, Info, ExternalLink } from 'lucide-react';
 import { useAppStore } from '../store/appStore';
 import LoadingScales from '../components/LoadingScales';
 import { authService } from '../services/supabase';
@@ -11,144 +11,57 @@ import { toast } from 'sonner';
 const LoginPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { setUser, setPhoneNumber, language } = useAppStore();
+  const { language } = useAppStore();
   
-  const [step, setStep] = useState('phone');
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [linkSent, setLinkSent] = useState(false);
   const [error, setError] = useState('');
-  const [useDemoMode, setUseDemoMode] = useState(false);
 
-  const DEMO_OTP = '123456';
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
 
-  const handlePhoneSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     
-    if (phone.length !== 10) {
-      setError('Please enter a valid 10-digit phone number');
-      toast.error('Please enter a valid 10-digit phone number');
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email address');
+      toast.error('Please enter a valid email address');
       return;
     }
 
     setIsLoading(true);
     
     try {
-      // Try real Supabase OTP first
-      await authService.sendOtp(phone);
-      setStep('otp');
-      setUseDemoMode(false);
-      toast.success(`OTP sent to +91 ${phone}`);
+      await authService.sendMagicLink(email);
+      setLinkSent(true);
+      toast.success('Verification link sent! Check your email.');
     } catch (err) {
-      console.error('OTP send error:', err);
-      
-      // Check if phone provider is disabled
-      if (err.message?.includes('phone_provider_disabled') || err.message?.includes('Unsupported phone provider')) {
-        setUseDemoMode(true);
-        setStep('otp');
-        toast.info(`Demo Mode: Use OTP ${DEMO_OTP} to login`, { duration: 5000 });
-        setError('');
-      } else {
-        setError(err.message || 'Failed to send OTP. Please try again.');
-        toast.error(err.message || 'Failed to send OTP');
-      }
+      console.error('Magic link send error:', err);
+      setError(err.message || 'Failed to send verification link. Please try again.');
+      toast.error(err.message || 'Failed to send link. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleOtpChange = (index, value) => {
-    if (value.length > 1) value = value[0];
-    if (!/^[0-9]*$/.test(value)) return;
-
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-
-    if (value && index < 5) {
-      document.getElementById(`otp-${index + 1}`)?.focus();
-    }
-  };
-
-  const handleOtpSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    
-    const otpValue = otp.join('');
-    if (otpValue.length !== 6) {
-      setError('Please enter complete 6-digit OTP');
-      toast.error('Please enter complete 6-digit OTP');
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      if (useDemoMode) {
-        // Demo mode verification
-        if (otpValue === DEMO_OTP) {
-          const userData = {
-            id: 'demo-user-' + phone,
-            phone: `+91${phone}`,
-            email: null,
-            language: language
-          };
-          
-          setUser(userData);
-          setPhoneNumber(`+91${phone}`);
-          toast.success('Login successful! (Demo Mode)');
-          navigate('/home');
-        } else {
-          throw new Error(`Invalid OTP. Use ${DEMO_OTP} for demo mode.`);
-        }
-      } else {
-        // Real Supabase verification
-        const { session, user } = await authService.verifyOtp(phone, otpValue);
-        
-        if (session && user) {
-          const userData = {
-            id: user.id,
-            phone: user.phone || `+91${phone}`,
-            email: user.email,
-            language: language
-          };
-          
-          setUser(userData);
-          setPhoneNumber(user.phone || `+91${phone}`);
-          toast.success('Login successful!');
-          navigate('/home');
-        }
-      }
-    } catch (err) {
-      console.error('OTP verification error:', err);
-      setError(err.message || 'Invalid OTP. Please try again.');
-      toast.error(err.message || 'Invalid OTP. Please check and try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleResendOtp = async () => {
-    if (useDemoMode) {
-      toast.info(`Demo Mode: Use OTP ${DEMO_OTP}`, { duration: 5000 });
-      return;
-    }
-
+  const handleResend = async () => {
     setIsLoading(true);
     try {
-      await authService.sendOtp(phone);
-      toast.success('OTP resent successfully');
-      setOtp(['', '', '', '', '', '']);
+      await authService.sendMagicLink(email);
+      toast.success('Verification link resent!');
     } catch (err) {
-      toast.error('Failed to resend OTP');
+      toast.error('Failed to resend link');
     } finally {
       setIsLoading(false);
     }
   };
 
   if (isLoading) {
-    return <LoadingScales message={step === 'phone' ? 'Sending OTP...' : 'Verifying...'} />;
+    return <LoadingScales message="Sending verification link..." />;
   }
 
   return (
@@ -174,16 +87,6 @@ const LoginPage = () => {
             <p className="text-white/70">Your bridge to justice</p>
           </div>
 
-          {useDemoMode && step === 'otp' && (
-            <div className="mb-4 p-4 bg-[#00E676]/10 border border-[#00E676]/30 rounded-xl flex items-start gap-3">
-              <Info className="w-5 h-5 text-[#00E676] flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm text-white/90 font-semibold mb-1">Demo Mode Active</p>
-                <p className="text-sm text-white/70">Use OTP: <span className="font-bold text-[#00E676]">{DEMO_OTP}</span></p>
-              </div>
-            </div>
-          )}
-
           {error && (
             <div className="mb-4 p-4 bg-[#FF4081]/10 border border-[#FF4081]/30 rounded-xl flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-[#FF4081] flex-shrink-0 mt-0.5" />
@@ -191,113 +94,110 @@ const LoginPage = () => {
             </div>
           )}
 
-          {step === 'phone' ? (
-            <form onSubmit={handlePhoneSubmit} className="space-y-6">
+          {!linkSent ? (
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-lg font-semibold mb-3">
-                  Phone Number
+                  Email Address
                 </label>
-                <div className="flex items-center gap-3">
-                  <div className="bg-[#0A0D29] border border-white/20 rounded-xl px-4 py-3 text-white/60 font-semibold">
-                    +91
-                  </div>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                    placeholder="9876543210"
-                    className="flex-1 min-h-[48px] bg-[#0A0D29] border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-[#FF6B00] focus:ring-1 focus:ring-[#FF6B00] transition-all text-lg"
-                    data-testid="phone-input"
-                    autoFocus
-                  />
-                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value.toLowerCase())}
+                  placeholder="your@email.com"
+                  className="w-full min-h-[48px] bg-[#0A0D29] border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-[#FF6B00] focus:ring-1 focus:ring-[#FF6B00] transition-all text-lg"
+                  data-testid="email-input"
+                  autoFocus
+                />
                 <p className="text-sm text-white/50 mt-2">
-                  We will send you a 6-digit OTP via SMS
+                  We'll send you a secure verification link
                 </p>
               </div>
 
               <button
                 type="submit"
                 className="w-full btn-primary"
-                data-testid="send-otp-btn"
-                disabled={phone.length !== 10}
+                data-testid="send-link-btn"
+                disabled={!email}
               >
-                <Phone className="w-5 h-5 mr-2" />
-                Send OTP
+                <Mail className="w-5 h-5 mr-2" />
+                Send Verification Link
                 <ArrowRight className="w-5 h-5 ml-2" />
               </button>
 
               <div className="flex items-center gap-3 p-4 bg-[#00E676]/10 border border-[#00E676]/30 rounded-xl">
                 <Check className="w-5 h-5 text-[#00E676] flex-shrink-0" />
                 <p className="text-sm text-white/80">
-                  No email required. Login with just your phone number.
+                  No password needed. Just click the link in your email to login.
                 </p>
               </div>
             </form>
           ) : (
-            <form onSubmit={handleOtpSubmit} className="space-y-6">
-              <div>
-                <label className="block text-lg font-semibold mb-3">
-                  Enter OTP
-                </label>
-                <p className="text-white/70 mb-4">
-                  Sent to +91 {phone}
-                  <button
-                    type="button"
-                    onClick={() => { setStep('phone'); setUseDemoMode(false); }}
-                    className="text-[#FF6B00] ml-2 hover:underline"
-                  >
-                    Change
-                  </button>
-                </p>
-                
-                <div className="flex gap-3 justify-center">
-                  {otp.map((digit, index) => (
-                    <input
-                      key={index}
-                      id={`otp-${index}`}
-                      type="text"
-                      inputMode="numeric"
-                      value={digit}
-                      onChange={(e) => handleOtpChange(index, e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Backspace' && !digit && index > 0) {
-                          document.getElementById(`otp-${index - 1}`)?.focus();
-                        }
-                      }}
-                      className="w-12 h-14 bg-[#0A0D29] border-2 border-white/20 rounded-xl text-center text-2xl font-bold text-white focus:border-[#FF6B00] focus:ring-1 focus:ring-[#FF6B00] transition-all"
-                      maxLength={1}
-                      data-testid={`otp-input-${index}`}
-                      autoFocus={index === 0}
-                    />
-                  ))}
+            <div className="space-y-6">
+              <div className="p-6 bg-[#00E676]/10 border border-[#00E676]/30 rounded-xl">
+                <div className="flex items-start gap-3 mb-4">
+                  <Mail className="w-6 h-6 text-[#00E676] flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-2">Check Your Email</h3>
+                    <p className="text-white/80 mb-3">
+                      We've sent a verification link to:
+                    </p>
+                    <p className="text-[#00E676] font-bold text-lg break-all">{email}</p>
+                  </div>
                 </div>
-                <p className="text-sm text-white/50 mt-3 text-center">
-                  {useDemoMode ? `Demo OTP: ${DEMO_OTP}` : 'Enter the 6-digit code within 60 seconds'}
-                </p>
               </div>
 
-              <button
-                type="submit"
-                className="w-full btn-primary"
-                data-testid="verify-otp-btn"
-                disabled={otp.join('').length !== 6}
-              >
-                Verify & Continue
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </button>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3 p-4 glass-card rounded-xl">
+                  <div className="w-8 h-8 rounded-full bg-[#FF6B00] text-white flex items-center justify-center flex-shrink-0 font-bold">
+                    1
+                  </div>
+                  <p className="text-white/80">Open your email inbox</p>
+                </div>
 
-              <div className="text-center">
+                <div className="flex items-start gap-3 p-4 glass-card rounded-xl">
+                  <div className="w-8 h-8 rounded-full bg-[#FF6B00] text-white flex items-center justify-center flex-shrink-0 font-bold">
+                    2
+                  </div>
+                  <p className="text-white/80">Look for email from Nyaya Setu</p>
+                </div>
+
+                <div className="flex items-start gap-3 p-4 glass-card rounded-xl">
+                  <div className="w-8 h-8 rounded-full bg-[#FF6B00] text-white flex items-center justify-center flex-shrink-0 font-bold">
+                    3
+                  </div>
+                  <div>
+                    <p className="text-white/80 mb-2">Click the verification link</p>
+                    <p className="text-xs text-white/50">Link expires in 1 hour</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
                 <button
-                  type="button"
-                  onClick={handleResendOtp}
-                  className="text-[#FF6B00] hover:underline"
-                  data-testid="resend-otp-btn"
+                  onClick={handleResend}
+                  className="w-full btn-primary"
+                  data-testid="resend-link-btn"
                 >
-                  Resend OTP
+                  <Mail className="w-5 h-5 mr-2" />
+                  Resend Link
+                </button>
+
+                <button
+                  onClick={() => { setLinkSent(false); setEmail(''); }}
+                  className="text-white/60 hover:text-white transition-colors text-sm"
+                >
+                  Use different email
                 </button>
               </div>
-            </form>
+
+              <div className="flex items-start gap-3 p-4 bg-[#D500F9]/10 border border-[#D500F9]/30 rounded-xl">
+                <Info className="w-5 h-5 text-[#D500F9] flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-white/70">
+                  Didn't receive the email? Check your spam folder or make sure you entered the correct email address.
+                </p>
+              </div>
+            </div>
           )}
         </motion.div>
 
@@ -313,14 +213,15 @@ const LoginPage = () => {
         </div>
 
         <div className="mt-6 p-4 glass-card rounded-xl">
-          <p className="text-xs text-white/60 text-center mb-2">
-            <strong className="text-[#FF6B00]">Setup Real SMS OTP:</strong>
-          </p>
-          <ol className="text-xs text-white/70 space-y-1 list-decimal list-inside">
-            <li>Go to Supabase Dashboard → Authentication → Providers</li>
-            <li>Enable Phone auth & configure Twilio (Account SID, Auth Token, Verify Service SID)</li>
-            <li>Save settings and OTPs will be sent via SMS automatically</li>
-          </ol>
+          <div className="flex items-start gap-3">
+            <Check className="w-5 h-5 text-[#00E676] flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-white mb-1">Passwordless & Secure</p>
+              <p className="text-xs text-white/60">
+                Magic links are more secure than passwords. No need to remember anything - just click the link in your email.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

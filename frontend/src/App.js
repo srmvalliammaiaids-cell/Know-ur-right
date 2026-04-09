@@ -7,6 +7,7 @@ import { useAppStore } from './store/appStore';
 
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import AuthCallback from './pages/AuthCallback';
 import Home from './pages/Home';
 import QueryPage from './pages/QueryPage';
 import ResultPage from './pages/ResultPage';
@@ -30,6 +31,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/query" element={<ProtectedRoute><QueryPage /></ProtectedRoute>} />
           <Route path="/result/:queryId" element={<ProtectedRoute><ResultPage /></ProtectedRoute>} />

@@ -16,39 +16,31 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 export const authService = {
-  // Send OTP to phone number
-  sendOtp: async (phoneNumber) => {
+  // Send magic link to email
+  sendMagicLink: async (email) => {
     try {
-      // Ensure phone number has country code
-      const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
-      
       const { data, error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }
       });
       
       if (error) throw error;
       return data;
     } catch (error) {
-      // Rethrow with proper error message
-      throw new Error(error.message || 'Failed to send OTP');
+      throw new Error(error.message || 'Failed to send verification link');
     }
   },
 
-  // Verify OTP
-  verifyOtp: async (phoneNumber, token) => {
+  // Verify magic link token (happens automatically when user clicks link)
+  exchangeCodeForSession: async (code) => {
     try {
-      const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
-      
-      const { data, error } = await supabase.auth.verifyOtp({
-        phone: formattedPhone,
-        token: token,
-        type: 'sms'
-      });
-      
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
       if (error) throw error;
       return data;
     } catch (error) {
-      throw new Error(error.message || 'Failed to verify OTP');
+      throw new Error(error.message || 'Failed to verify link');
     }
   },
 
