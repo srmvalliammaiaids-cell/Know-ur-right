@@ -1,0 +1,95 @@
+{
+  "project_name": "Nyaya Setu",
+  "theme": "Light",
+  "archetype": "Modified Archetype 1 (Trust & Grounded) + High Accessibility (Vibrant)",
+  "colors": {
+    "background": "#FFFFFF",
+    "surface": "#F8F9FA",
+    "primary": "#FF6B00",
+    "secondary": "#1A237E",
+    "emergency": "#D32F2F",
+    "text_primary": "#1A237E",
+    "text_secondary": "#283593",
+    "border": "#C5CAE9",
+    "contrast_rules": "CRITICAL: White text on Saffron (#FF6B00) fails WCAG AA contrast. You MUST use Deep Navy (#1A237E) or Black text/icons on Saffron backgrounds. Saffron text can be used on Navy or White backgrounds."
+  },
+  "typography": {
+    "heading_font": "Work Sans",
+    "body_font": "IBM Plex Sans",
+    "minimum_sizes": {
+      "body": "18px (text-lg)",
+      "heading": "22px (text-2xl)"
+    },
+    "hierarchy": {
+      "h1": "text-3xl sm:text-4xl font-black tracking-tight text-[#1A237E]",
+      "h2": "text-2xl sm:text-3xl font-bold tracking-tight text-[#1A237E]",
+      "h3": "text-xl sm:text-2xl font-bold text-[#1A237E]",
+      "body": "text-lg font-medium leading-relaxed text-[#1A237E]",
+      "labels": "text-lg font-bold tracking-wide uppercase text-[#283593]"
+    }
+  },
+  "spacing_and_layout": {
+    "philosophy": "High-Contrast, Single-Column Mobile-First. Everything must be highly legible on 320px screens. Generous internal padding.",
+    "touch_targets": "Minimum 48x48px. Primary actions 64x64px. Voice button 80x80px.",
+    "containers": "Cardless layout or solid borders. Use solid 2px borders (border-[#1A237E]/20) with p-6 or p-8 padding to separate sections visually. Avoid subtle box-shadows as they fail on low-end screens.",
+    "grid_system": "grid-cols-1 default for mobile. Use grid-cols-2 only for large tap target grids (like language selection)."
+  },
+  "components": {
+    "voice_interface": {
+      "type": "Floating Action Button / Hero Element",
+      "classes": "w-[80px] h-[80px] rounded-full bg-[#FF6B00] text-[#1A237E] flex items-center justify-center shadow-[0_8px_16px_rgba(255,107,0,0.3)]",
+      "animation": "Pulsing waveform effect (scale 1 to 1.1) when active using Framer Motion."
+    },
+    "panic_button": {
+      "type": "Prominent Fixed Element",
+      "classes": "bg-[#D32F2F] text-white font-black text-xl px-6 py-4 rounded-xl shadow-lg border-2 border-[#D32F2F] uppercase tracking-wider"
+    },
+    "rights_meter": {
+      "type": "Visual Gauge",
+      "classes": "h-6 w-full bg-[#E8EAF6] rounded-full overflow-hidden border-2 border-[#1A237E]/10",
+      "fill_classes": "h-full bg-[#FF6B00] transition-all duration-500 ease-out"
+    },
+    "jargon_buster": {
+      "type": "Interactive Text",
+      "classes": "underline decoration-[#FF6B00] decoration-[3px] underline-offset-4 cursor-pointer font-bold text-[#1A237E] hover:bg-[#FF6B00]/10"
+    },
+    "language_selector": {
+      "type": "Large Tap Grid",
+      "classes": "grid grid-cols-2 gap-4"
+    },
+    "timeline_visualizer": {
+      "type": "Horizontal Nodes",
+      "classes": "flex items-center space-x-4 overflow-x-auto pb-4 snap-x"
+    }
+  },
+  "icons_and_assets": {
+    "library": "lucide-react",
+    "sizing": "w-8 h-8 minimum for standard icons, w-10 h-10 or w-12 h-12 for primary pictograms",
+    "stroke_weight": "3px (Bold and highly visible for low literacy)"
+  },
+  "image_urls": {
+    "hero_community": {
+      "url": "https://images.unsplash.com/photo-1774437563786-d40a1087f31e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDN8MHwxfHNlYXJjaHwxfHxpbmRpYW4lMjBjb21tdW5pdHklMjBnYXRoZXJpbmd8ZW58MHx8fHwxNzc1NzQ5NzQ4fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Indian community gathering. Use in the 'Community Q&A', 'NGO Finder' header, or landing screen to establish trust."
+    },
+    "citizen_support": {
+      "url": "https://images.unsplash.com/photo-1635907423563-bb17f3d05c70?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwyfHxydXJhbCUyMGluZGlhbiUyMHNtaWxpbmd8ZW58MHx8fHwxNzc1NzQ5NzQ4fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Rural citizen. Use for the user persona / profile placeholder or 'Know Your Rights' educational sections."
+    }
+  },
+  "accessibility_and_motion": {
+    "motion": "Minimal and purposeful. The only continuous motion should be the active voice waveform.",
+    "testing": "All interactive elements MUST have data-testid attributes (e.g., data-testid='voice-record-btn').",
+    "contrast": "Ensure pure black or deep navy text over saffron elements."
+  },
+  "instructions_to_main_agent": [
+    "Strictly adhere to the 18px minimum body size (text-lg) and 22px minimum heading size (text-2xl) across the app.",
+    "Implement the voice recording button as a massive 80x80px element with pulsing animation to indicate listening.",
+    "Ensure 'Saffron' buttons have 'Deep Navy' text. DO NOT use white text on Saffron, it fails accessibility contrast.",
+    "Keep standard padding large: use p-6 or p-8 inside cards/sections to prevent mis-taps on small screens.",
+    "Do not use subtle gray text. The lightest text allowed is text-[#1A237E]/80.",
+    "Use Lucide icons, but scale them up (w-8 h-8 minimum) with a thick 3px stroke to serve as clear pictograms for low-literacy users.",
+    "Build the Jargon Buster using a Popover or Dialog component triggered by tapping thickly underlined words.",
+    "Avoid decorative CSS backgrounds that increase page weight. Stick to solid colors (White, Saffron, Deep Navy) for 2G network optimization."
+  ]
+}
