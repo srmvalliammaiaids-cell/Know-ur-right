@@ -30,20 +30,22 @@ const LanguageSelector = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="flex items-center gap-2 px-4 py-3 bg-[#FF6B00] text-[#1A237E] rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+          className="flex items-center gap-2 px-4 py-3 glass-card rounded-xl font-bold text-lg hover:shadow-[0_0_20px_rgba(255,107,0,0.3)] transition-all duration-300"
           data-testid="language-selector-btn"
         >
-          <Globe className="w-6 h-6" strokeWidth={3} />
-          <span>{currentLang.name}</span>
+          <Globe className="w-6 h-6 text-[#FF6B00]" strokeWidth={3} />
+          <span className="text-white">{currentLang.name}</span>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-white border-2 border-[#1A237E]/20 p-2 min-w-[200px]" data-testid="language-dropdown">
+      <DropdownMenuContent className="bg-[#111742] border-2 border-white/20 p-2 min-w-[200px]" data-testid="language-dropdown">
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
             onClick={() => handleLanguageChange(lang.code)}
-            className={`px-4 py-3 text-lg font-bold cursor-pointer rounded-lg ${
-              language === lang.code ? 'bg-[#FF6B00]/20 text-[#FF6B00]' : 'text-[#1A237E] hover:bg-[#F8F9FA]'
+            className={`px-4 py-3 text-lg font-bold cursor-pointer rounded-lg transition-all ${
+              language === lang.code 
+                ? 'bg-gradient-to-r from-[#FF6B00] to-[#FF8A33] text-white' 
+                : 'text-white/80 hover:bg-white/10'
             }`}
             data-testid={`lang-option-${lang.code}`}
           >
