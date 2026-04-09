@@ -11,7 +11,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    flowType: 'pkce'
   }
 });
 
@@ -19,16 +20,28 @@ export const authService = {
   // Send magic link to email
   sendMagicLink: async (email) => {
     try {
-      const { data, error } = await supabase.auth.signInWithOtp({
+      const result = await supabase.auth.signInWithOtp({
         email: email,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       });
       
-      if (error) throw error;
-      return data;
+      // Check for errors before accessing data
+      if (result.error) {
+        throw result.error;
+      }
+      
+      return result.data;
     } catch (error) {
+      console.error('Send magic link error:', error);
+      
+      // Handle specific error cases
+      if (error.status === 422 || error.message?.includes('Email link is invalid')) {
+        throw new Error('email_not_configured');
+      }
+      
+      // Generic error
       throw new Error(error.message || 'Failed to send verification link');
     }
   },
@@ -37,9 +50,10 @@ export const authService = {
   exchangeCodeForSession: async (code) => {
     try {
       const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-      if (error) throw error;
+      if (error) throw new Error(error.message);
       return data;
     } catch (error) {
+      console.error('Exchange code error:', error);
       throw new Error(error.message || 'Failed to verify link');
     }
   },

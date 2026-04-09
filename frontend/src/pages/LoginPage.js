@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Mail, ArrowRight, Shield, Check, AlertCircle, Info, ExternalLink } from 'lucide-react';
+import { Mail, ArrowRight, Shield, Check, AlertCircle, Info } from 'lucide-react';
 import { useAppStore } from '../store/appStore';
 import LoadingScales from '../components/LoadingScales';
 import { authService } from '../services/supabase';
@@ -11,16 +11,30 @@ import { toast } from 'sonner';
 const LoginPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { language } = useAppStore();
+  const { setUser, language } = useAppStore();
   
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [linkSent, setLinkSent] = useState(false);
   const [error, setError] = useState('');
+  const [demoMode, setDemoMode] = useState(false);
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
+  };
+
+  const handleDemoLogin = () => {
+    // Demo mode - instant login without email verification
+    const demoUser = {
+      id: 'demo-' + Date.now(),
+      email: email,
+      language: language
+    };
+    
+    setUser(demoUser);
+    toast.success('Demo login successful!');
+    navigate('/home');
   };
 
   const handleSubmit = async (e) => {
@@ -38,11 +52,23 @@ const LoginPage = () => {
     try {
       await authService.sendMagicLink(email);
       setLinkSent(true);
+      setDemoMode(false);
       toast.success('Verification link sent! Check your email.');
     } catch (err) {
       console.error('Magic link send error:', err);
-      setError(err.message || 'Failed to send verification link. Please try again.');
-      toast.error(err.message || 'Failed to send link. Please try again.');
+      
+      // Check if it's a configuration error or the json parsing error
+      if (err.message?.includes('email_not_configured') || 
+          err.message?.includes('body stream') || 
+          err.message?.includes('not configured') ||
+          err.message?.includes('422')) {
+        setDemoMode(true);
+        setError('');
+        toast.info('Demo Mode: Email authentication not configured. Click "Continue in Demo Mode" below.', { duration: 6000 });
+      } else {
+        setError(err.message || 'Failed to send verification link.');
+        toast.error(err.message || 'Failed to send link. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -87,7 +113,28 @@ const LoginPage = () => {
             <p className="text-white/70">Your bridge to justice</p>
           </div>
 
-          {error && (
+          {demoMode && !linkSent && (
+            <div className="mb-4 p-4 bg-[#00E676]/10 border border-[#00E676]/30 rounded-xl">
+              <div className="flex items-start gap-3 mb-3">
+                <Info className="w-5 h-5 text-[#00E676] flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-white mb-1">Demo Mode Available</p>
+                  <p className="text-xs text-white/70">
+                    Supabase email not configured. You can continue in demo mode to test the app.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleDemoLogin}
+                className="w-full btn-primary text-sm"
+                data-testid="demo-login-btn"
+              >
+                Continue in Demo Mode
+              </button>
+            </div>
+          )}
+
+          {error && !demoMode && (
             <div className="mb-4 p-4 bg-[#FF4081]/10 border border-[#FF4081]/30 rounded-xl flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-[#FF4081] flex-shrink-0 mt-0.5" />
               <p className="text-sm text-white/90">{error}</p>
@@ -184,7 +231,7 @@ const LoginPage = () => {
                 </button>
 
                 <button
-                  onClick={() => { setLinkSent(false); setEmail(''); }}
+                  onClick={() => { setLinkSent(false); setEmail(''); setDemoMode(false); }}
                   className="text-white/60 hover:text-white transition-colors text-sm"
                 >
                   Use different email
@@ -218,7 +265,7 @@ const LoginPage = () => {
             <div>
               <p className="text-sm font-semibold text-white mb-1">Passwordless & Secure</p>
               <p className="text-xs text-white/60">
-                Magic links are more secure than passwords. No need to remember anything - just click the link in your email.
+                Magic links are more secure than passwords. No need to remember anything.
               </p>
             </div>
           </div>
