@@ -6,8 +6,8 @@ import { useAppStore } from '../store/appStore';
 import { api } from '../services/api';
 import { Mic, MicOff, Loader2, Send } from 'lucide-react';
 import LanguageSelector from '../components/LanguageSelector';
-import DarkModeToggle from '../components/DarkModeToggle';
 import LoadingScales from '../components/LoadingScales';
+import BottomNav from '../components/BottomNav';
 import { toast } from 'sonner';
 
 const QueryPage = () => {
@@ -144,7 +144,7 @@ const QueryPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0D29] text-white p-4 md:p-8" data-testid="query-page">
+    <div className="min-h-screen bg-[#0A0D29] text-white p-4 md:p-8 pb-24" data-testid="query-page">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -158,8 +158,6 @@ const QueryPage = () => {
             <LanguageSelector />
           </div>
         </div>
-
-        <DarkModeToggle />
 
         {/* Title */}
         <motion.h1 
@@ -282,6 +280,7 @@ const QueryPage = () => {
           </p>
         </motion.div>
       </div>
+      <BottomNav />
     </div>
   );
 };

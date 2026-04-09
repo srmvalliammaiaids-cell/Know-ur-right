@@ -11,8 +11,13 @@ import AuthCallback from './pages/AuthCallback';
 import Home from './pages/Home';
 import QueryPage from './pages/QueryPage';
 import ResultPage from './pages/ResultPage';
+import LegalNoticePage from './pages/LegalNoticePage';
+import NGODirectoryPage from './pages/NGODirectoryPage';
+import EmergencyPage from './pages/EmergencyPage';
+import CommunityPage from './pages/CommunityPage';
+import HistoryPage from './pages/HistoryPage';
+import ProfilePage from './pages/ProfilePage';
 
-// Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAppStore();
   return isAuthenticated ? children : <Navigate to="/login" replace />;
@@ -35,6 +40,12 @@ function App() {
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/query" element={<ProtectedRoute><QueryPage /></ProtectedRoute>} />
           <Route path="/result/:queryId" element={<ProtectedRoute><ResultPage /></ProtectedRoute>} />
+          <Route path="/notice/generate/:queryId?" element={<ProtectedRoute><LegalNoticePage /></ProtectedRoute>} />
+          <Route path="/ngo-finder" element={<ProtectedRoute><NGODirectoryPage /></ProtectedRoute>} />
+          <Route path="/emergency" element={<ProtectedRoute><EmergencyPage /></ProtectedRoute>} />
+          <Route path="/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
+          <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
       <Toaster position="top-center" richColors />
