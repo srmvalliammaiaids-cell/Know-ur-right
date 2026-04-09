@@ -172,6 +172,25 @@ const LoginPage = () => {
                 <ArrowRight className="w-5 h-5 ml-2" />
               </button>
 
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/20"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-[#111742] text-white/60">OR</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleDemoLogin}
+                className="w-full min-h-[48px] px-6 rounded-xl font-semibold text-lg border-2 border-[#00E676] text-[#00E676] hover:bg-[#00E676]/10 transition-all flex items-center justify-center gap-2"
+                data-testid="demo-login-direct-btn"
+              >
+                <Shield className="w-5 h-5" />
+                Try Demo (No Email Required)
+              </button>
+
               <div className="flex items-center gap-3 p-4 bg-[#00E676]/10 border border-[#00E676]/30 rounded-xl">
                 <Check className="w-5 h-5 text-[#00E676] flex-shrink-0" />
                 <p className="text-sm text-white/80">
