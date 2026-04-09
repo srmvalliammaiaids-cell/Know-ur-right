@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Phone, ArrowRight, Shield, Check } from 'lucide-react';
+import { Phone, ArrowRight, Shield, Check, AlertCircle, Info } from 'lucide-react';
 import { useAppStore } from '../store/appStore';
 import LoadingScales from '../components/LoadingScales';
+import { authService } from '../services/supabase';
 import { toast } from 'sonner';
 
 const LoginPage = () => {
@@ -16,22 +17,45 @@ const LoginPage = () => {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [useDemoMode, setUseDemoMode] = useState(false);
+
+  const DEMO_OTP = '123456';
 
   const handlePhoneSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     
     if (phone.length !== 10) {
+      setError('Please enter a valid 10-digit phone number');
       toast.error('Please enter a valid 10-digit phone number');
       return;
     }
 
     setIsLoading(true);
     
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      // Try real Supabase OTP first
+      await authService.sendOtp(phone);
       setStep('otp');
+      setUseDemoMode(false);
       toast.success(`OTP sent to +91 ${phone}`);
-    }, 1500);
+    } catch (err) {
+      console.error('OTP send error:', err);
+      
+      // Check if phone provider is disabled
+      if (err.message?.includes('phone_provider_disabled') || err.message?.includes('Unsupported phone provider')) {
+        setUseDemoMode(true);
+        setStep('otp');
+        toast.info(`Demo Mode: Use OTP ${DEMO_OTP} to login`, { duration: 5000 });
+        setError('');
+      } else {
+        setError(err.message || 'Failed to send OTP. Please try again.');
+        toast.error(err.message || 'Failed to send OTP');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleOtpChange = (index, value) => {
@@ -49,33 +73,78 @@ const LoginPage = () => {
 
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     
     const otpValue = otp.join('');
     if (otpValue.length !== 6) {
+      setError('Please enter complete 6-digit OTP');
       toast.error('Please enter complete 6-digit OTP');
       return;
     }
 
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      if (useDemoMode) {
+        // Demo mode verification
+        if (otpValue === DEMO_OTP) {
+          const userData = {
+            id: 'demo-user-' + phone,
+            phone: `+91${phone}`,
+            email: null,
+            language: language
+          };
+          
+          setUser(userData);
+          setPhoneNumber(`+91${phone}`);
+          toast.success('Login successful! (Demo Mode)');
+          navigate('/home');
+        } else {
+          throw new Error(`Invalid OTP. Use ${DEMO_OTP} for demo mode.`);
+        }
+      } else {
+        // Real Supabase verification
+        const { session, user } = await authService.verifyOtp(phone, otpValue);
+        
+        if (session && user) {
+          const userData = {
+            id: user.id,
+            phone: user.phone || `+91${phone}`,
+            email: user.email,
+            language: language
+          };
+          
+          setUser(userData);
+          setPhoneNumber(user.phone || `+91${phone}`);
+          toast.success('Login successful!');
+          navigate('/home');
+        }
+      }
+    } catch (err) {
+      console.error('OTP verification error:', err);
+      setError(err.message || 'Invalid OTP. Please try again.');
+      toast.error(err.message || 'Invalid OTP. Please check and try again.');
+    } finally {
       setIsLoading(false);
-      
-      const userData = {
-        phone: `+91${phone}`,
-        name: 'User',
-        language: language
-      };
-      
-      setUser(userData);
-      setPhoneNumber(`+91${phone}`);
-      toast.success('Login successful!');
-      navigate('/home');
-    }, 1500);
+    }
   };
 
-  const handleResendOtp = () => {
-    toast.success('OTP resent successfully');
+  const handleResendOtp = async () => {
+    if (useDemoMode) {
+      toast.info(`Demo Mode: Use OTP ${DEMO_OTP}`, { duration: 5000 });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await authService.sendOtp(phone);
+      toast.success('OTP resent successfully');
+      setOtp(['', '', '', '', '', '']);
+    } catch (err) {
+      toast.error('Failed to resend OTP');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isLoading) {
@@ -105,6 +174,23 @@ const LoginPage = () => {
             <p className="text-white/70">Your bridge to justice</p>
           </div>
 
+          {useDemoMode && step === 'otp' && (
+            <div className="mb-4 p-4 bg-[#00E676]/10 border border-[#00E676]/30 rounded-xl flex items-start gap-3">
+              <Info className="w-5 h-5 text-[#00E676] flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm text-white/90 font-semibold mb-1">Demo Mode Active</p>
+                <p className="text-sm text-white/70">Use OTP: <span className="font-bold text-[#00E676]">{DEMO_OTP}</span></p>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="mb-4 p-4 bg-[#FF4081]/10 border border-[#FF4081]/30 rounded-xl flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-[#FF4081] flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-white/90">{error}</p>
+            </div>
+          )}
+
           {step === 'phone' ? (
             <form onSubmit={handlePhoneSubmit} className="space-y-6">
               <div>
@@ -126,7 +212,7 @@ const LoginPage = () => {
                   />
                 </div>
                 <p className="text-sm text-white/50 mt-2">
-                  We will send you a 6-digit OTP to verify your number
+                  We will send you a 6-digit OTP via SMS
                 </p>
               </div>
 
@@ -134,6 +220,7 @@ const LoginPage = () => {
                 type="submit"
                 className="w-full btn-primary"
                 data-testid="send-otp-btn"
+                disabled={phone.length !== 10}
               >
                 <Phone className="w-5 h-5 mr-2" />
                 Send OTP
@@ -157,7 +244,7 @@ const LoginPage = () => {
                   Sent to +91 {phone}
                   <button
                     type="button"
-                    onClick={() => setStep('phone')}
+                    onClick={() => { setStep('phone'); setUseDemoMode(false); }}
                     className="text-[#FF6B00] ml-2 hover:underline"
                   >
                     Change
@@ -185,12 +272,16 @@ const LoginPage = () => {
                     />
                   ))}
                 </div>
+                <p className="text-sm text-white/50 mt-3 text-center">
+                  {useDemoMode ? `Demo OTP: ${DEMO_OTP}` : 'Enter the 6-digit code within 60 seconds'}
+                </p>
               </div>
 
               <button
                 type="submit"
                 className="w-full btn-primary"
                 data-testid="verify-otp-btn"
+                disabled={otp.join('').length !== 6}
               >
                 Verify & Continue
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -219,6 +310,17 @@ const LoginPage = () => {
             <div className="text-2xl font-bold text-[#D500F9] mb-1">Free</div>
             <div className="text-sm text-white/60">Always</div>
           </div>
+        </div>
+
+        <div className="mt-6 p-4 glass-card rounded-xl">
+          <p className="text-xs text-white/60 text-center mb-2">
+            <strong className="text-[#FF6B00]">Setup Real SMS OTP:</strong>
+          </p>
+          <ol className="text-xs text-white/70 space-y-1 list-decimal list-inside">
+            <li>Go to Supabase Dashboard → Authentication → Providers</li>
+            <li>Enable Phone auth & configure Twilio (Account SID, Auth Token, Verify Service SID)</li>
+            <li>Save settings and OTPs will be sent via SMS automatically</li>
+          </ol>
         </div>
       </div>
     </div>
